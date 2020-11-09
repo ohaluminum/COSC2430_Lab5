@@ -1,20 +1,84 @@
-// COSC2430_Lab5.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
+#include <fstream>
+#include <map>
+#include "ArgumentManager.h"
+using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::cout << "Hello World!\n";
+    ArgumentManager am(argc, argv);
+
+    //Get the filename of argument name "input" and "output" and "command"
+    //string input = am.get("input");
+    //string output = am.get("output");
+
+    //Test
+    string input = "input3.txt";
+    string output = "output3.txt";
+
+    ifstream inFS;
+    ofstream outFS;
+
+    try
+    {
+        //Open input file and output file  
+        inFS.open(input);
+        outFS.open(output);
+
+        //Throw exception if the file doesn't exist
+        if (!inFS.is_open())
+        {
+            throw runtime_error("ERROR: File not found");
+        }
+
+        //Throw exception if the file is empty
+        if (inFS.peek() == EOF)
+        {
+            throw runtime_error("ERROR: File is empty");
+        }
+    }
+    catch (runtime_error & e)
+    {
+        outFS << e.what() << endl;
+    }
+
+    int numOfFruit = 0;
+    string fruitName = "";
+
+    map<string, int> fruitMap;
+
+    inFS >> numOfFruit;
+
+    //Loop through the fruit list
+    for (int i = 0; i < numOfFruit; i++)
+    {
+        inFS >> fruitName;
+
+        //Find a particular fruit
+        auto result = fruitMap.find(fruitName);
+
+        //Fruit is found in the map
+        if (result != fruitMap.end())
+        {
+            //Increase the counter
+            result->second += 1;
+        }
+        //Fruit is not found in the map
+        else
+        {
+            fruitMap[fruitName] = 1;
+        }
+    }
+
+    //Loop through fruit map
+    for (auto i : fruitMap)
+    {
+        outFS << i.first << ": " << i.second << endl;
+    }
+
+    //Close files
+    inFS.close();
+    outFS.close();
+
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
